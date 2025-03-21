@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlindoCare - AI Blind Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        #video-feed {
+            width: 80%;
+            max-width: 640px;
+            border: 5px solid #0078d7;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        #object-list {
+            width: 80%;
+            max-width: 640px;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #0078d7;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #f0f0f0;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>BlindoCare - AI Blind Assistant</h1>
+    </header>
+    <main>
+        <h2>Live Video Feed</h2>
+        <img id="video-feed" src="/video_feed" alt="Live Video Feed">
+        <h2>Detected Objects</h2>
+        <div id="object-list">
+            <ul id="objects">
+                <li>No objects detected yet.</li>
+            </ul>
+        </div>
+    </main>
+    <script>
+        function updateDetectedObjects() {
+            fetch('/get_objects')
+                .then(response => response.json())
+                .then(data => {
+                    const objectList = document.getElementById('objects');
+                    objectList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(obj => {
+                            obj.forEach(([label, distance, position]) => {
+                                const li = document.createElement('li');
+                                li.textContent = `${label} is ${distance} meters on ${position}`;
+                                objectList.appendChild(li);
+                            });
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.textContent = 'No objects detected.';
+                        objectList.appendChild(li);
+                    }
+                })
+                .catch(err => console.error('Error fetching detected objects:', err));
+        }
+
+        setInterval(updateDetectedObjects, 1000);
+    </script>
+</body>
+</html>
